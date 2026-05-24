@@ -64,8 +64,11 @@ $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $backup = Join-Path $dest "_backup-$timestamp"
 $toBackup = @(
     'mpv.conf',
+    'mpvnet.conf',
+    'input.conf',
     'scripts\modernx.lua',
     'scripts\modernz.lua',
+    'scripts\delete_current.lua',
     'scripts\input.conf',
     'script-opts\modernz.conf',
     'fonts\modernx-osc-icon.ttf'
@@ -96,6 +99,12 @@ Copy-Item -Path (Join-Path $src 'script-opts\modernz.conf')   -Destination (Join
 Copy-Item -Path (Join-Path $src 'mpv.conf')                   -Destination (Join-Path $dest 'mpv.conf')                   -Force
 Copy-Item -Path (Join-Path $src 'input.conf')                 -Destination (Join-Path $dest 'input.conf')                 -Force
 Write-Host "    OK : modernz.lua, delete_current.lua, modernz-icons.ttf, modernz.conf, mpv.conf, input.conf"
+
+# mpvnet.conf : uniquement si la destination est %APPDATA%\mpv.net (sinon ignoré, c'est une option mpv.net-only)
+if ($dest -eq "$env:APPDATA\mpv.net" -and (Test-Path (Join-Path $src 'mpvnet.conf'))) {
+    Copy-Item -Path (Join-Path $src 'mpvnet.conf') -Destination (Join-Path $dest 'mpvnet.conf') -Force
+    Write-Host "    OK : mpvnet.conf (langue + options mpv.net)"
+}
 
 # --- Shaders ---
 $shaderSrc = Join-Path $src 'shaders'
