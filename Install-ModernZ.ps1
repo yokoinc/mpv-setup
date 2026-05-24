@@ -21,9 +21,10 @@ Write-Host "==> Source : $src" -ForegroundColor Cyan
 
 # --- Choix de la destination ---
 $candidates = @(
-    "$env:APPDATA\mpv",                                                    # 1) standard Windows (RECOMMANDÉ)
-    "C:\ProgramData\chocolatey\lib\mpvio.install\tools\portable_config",   # 2) ton emplacement actuel (admin requis)
-    "C:\ProgramData\chocolatey\lib\mpvio.portable\tools\portable_config"   # 3) variante portable
+    "$env:APPDATA\mpv.net",                                                # 1) mpv.net (RECOMMANDÉ si mpv.net installé)
+    "$env:APPDATA\mpv",                                                    # 2) mpv vanilla (shinchiro/CI build)
+    "C:\ProgramData\chocolatey\lib\mpvio.install\tools\portable_config",   # 3) ancien mpvio chocolatey (admin requis)
+    "C:\ProgramData\chocolatey\lib\mpvio.portable\tools\portable_config"   # 4) variante portable
 )
 
 Write-Host ""
@@ -88,11 +89,13 @@ if ($toBackup.Count -gt 0) {
 # --- Copies ---
 Write-Host ""
 Write-Host "==> Installation des fichiers ModernZ" -ForegroundColor Green
-Copy-Item -Path (Join-Path $src 'scripts\modernz.lua')      -Destination (Join-Path $dest 'scripts\modernz.lua')      -Force
-Copy-Item -Path (Join-Path $src 'fonts\modernz-icons.ttf')  -Destination (Join-Path $dest 'fonts\modernz-icons.ttf')  -Force
-Copy-Item -Path (Join-Path $src 'script-opts\modernz.conf') -Destination (Join-Path $dest 'script-opts\modernz.conf') -Force
-Copy-Item -Path (Join-Path $src 'mpv.conf')                 -Destination (Join-Path $dest 'mpv.conf')                 -Force
-Write-Host "    OK : modernz.lua, modernz-icons.ttf, modernz.conf, mpv.conf"
+Copy-Item -Path (Join-Path $src 'scripts\modernz.lua')        -Destination (Join-Path $dest 'scripts\modernz.lua')        -Force
+Copy-Item -Path (Join-Path $src 'scripts\delete_current.lua') -Destination (Join-Path $dest 'scripts\delete_current.lua') -Force
+Copy-Item -Path (Join-Path $src 'fonts\modernz-icons.ttf')    -Destination (Join-Path $dest 'fonts\modernz-icons.ttf')    -Force
+Copy-Item -Path (Join-Path $src 'script-opts\modernz.conf')   -Destination (Join-Path $dest 'script-opts\modernz.conf')   -Force
+Copy-Item -Path (Join-Path $src 'mpv.conf')                   -Destination (Join-Path $dest 'mpv.conf')                   -Force
+Copy-Item -Path (Join-Path $src 'input.conf')                 -Destination (Join-Path $dest 'input.conf')                 -Force
+Write-Host "    OK : modernz.lua, delete_current.lua, modernz-icons.ttf, modernz.conf, mpv.conf, input.conf"
 
 # --- Shaders ---
 $shaderSrc = Join-Path $src 'shaders'
