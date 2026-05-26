@@ -1,17 +1,16 @@
 # =============================================================
 #  Install-ModernZ.ps1
-#  Installe ModernZ + ta config polie pour mpv (mpvio).
+#  Installe ModernZ + ta config polie pour mpv vanilla.
 #
 #  USAGE :
 #   1. Clic droit sur ce fichier > "Exécuter avec PowerShell"
-#      (ou ouvrir PowerShell en admin et : .\Install-ModernZ.ps1)
-#   2. Choisir l'emplacement cible (recommandé : %APPDATA%\mpv)
+#      (ou ouvrir PowerShell et : .\Install-ModernZ.ps1)
+#   2. Confirmer l'emplacement cible (défaut : %APPDATA%\mpv)
 #
 #  Le script :
-#   - copie modernz.lua + modernz-icons.ttf
-#   - copie ton modernz.conf et mpv.conf personnalisés
-#   - retire l'ancien modernx.lua / modernx-osc-icon.ttf
-#   - retire le fichier scripts/input.conf orphelin
+#   - copie mpv.conf, input.conf, scripts, script-opts, shaders, fonts
+#   - sauvegarde tout fichier existant dans _backup-YYYYMMDD-HHMMSS
+#   - nettoie les vieux fichiers orphelins (modernx, etc.)
 # =============================================================
 
 $ErrorActionPreference = 'Stop'
@@ -21,10 +20,7 @@ Write-Host "==> Source : $src" -ForegroundColor Cyan
 
 # --- Choix de la destination ---
 $candidates = @(
-    "$env:APPDATA\mpv.net",                                                # 1) mpv.net (RECOMMANDÉ si mpv.net installé)
-    "$env:APPDATA\mpv",                                                    # 2) mpv vanilla (shinchiro/CI build)
-    "C:\ProgramData\chocolatey\lib\mpvio.install\tools\portable_config",   # 3) ancien mpvio chocolatey (admin requis)
-    "C:\ProgramData\chocolatey\lib\mpvio.portable\tools\portable_config"   # 4) variante portable
+    "$env:APPDATA\mpv"     # 1) Emplacement standard mpv vanilla (shinchiro / CI build)
 )
 
 Write-Host ""
@@ -35,14 +31,12 @@ for ($i = 0; $i -lt $candidates.Count; $i++) {
 }
 Write-Host "  [c] Chemin personnalisé"
 Write-Host ""
-$choice = Read-Host "Ton choix (1 par défaut, recommandé)"
+$choice = Read-Host "Ton choix (1 par défaut)"
 if ([string]::IsNullOrWhiteSpace($choice)) { $choice = '1' }
 
 switch ($choice) {
-    '1' { $dest = $candidates[0] }
-    '2' { $dest = $candidates[1] }
-    '3' { $dest = $candidates[2] }
-    'c' { $dest = Read-Host "Chemin complet" }
+    '1'     { $dest = $candidates[0] }
+    'c'     { $dest = Read-Host "Chemin complet" }
     default { $dest = $candidates[0] }
 }
 
@@ -64,7 +58,6 @@ $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $backup = Join-Path $dest "_backup-$timestamp"
 $toBackup = @(
     'mpv.conf',
-    'mpvnet.conf',
     'input.conf',
     'scripts\modernx.lua',
     'scripts\modernz.lua',
@@ -91,7 +84,7 @@ if ($toBackup.Count -gt 0) {
 
 # --- Copies ---
 Write-Host ""
-Write-Host "==> Installation des fichiers ModernZ" -ForegroundColor Green
+Write-Host "==> Installation des fichiers" -ForegroundColor Green
 Copy-Item -Path (Join-Path $src 'scripts\modernz.lua')        -Destination (Join-Path $dest 'scripts\modernz.lua')        -Force
 Copy-Item -Path (Join-Path $src 'scripts\delete_current.lua') -Destination (Join-Path $dest 'scripts\delete_current.lua') -Force
 Copy-Item -Path (Join-Path $src 'fonts\modernz-icons.ttf')    -Destination (Join-Path $dest 'fonts\modernz-icons.ttf')    -Force
@@ -99,12 +92,6 @@ Copy-Item -Path (Join-Path $src 'script-opts\modernz.conf')   -Destination (Join
 Copy-Item -Path (Join-Path $src 'mpv.conf')                   -Destination (Join-Path $dest 'mpv.conf')                   -Force
 Copy-Item -Path (Join-Path $src 'input.conf')                 -Destination (Join-Path $dest 'input.conf')                 -Force
 Write-Host "    OK : modernz.lua, delete_current.lua, modernz-icons.ttf, modernz.conf, mpv.conf, input.conf"
-
-# mpvnet.conf : uniquement si la destination est %APPDATA%\mpv.net (sinon ignoré, c'est une option mpv.net-only)
-if ($dest -eq "$env:APPDATA\mpv.net" -and (Test-Path (Join-Path $src 'mpvnet.conf'))) {
-    Copy-Item -Path (Join-Path $src 'mpvnet.conf') -Destination (Join-Path $dest 'mpvnet.conf') -Force
-    Write-Host "    OK : mpvnet.conf (langue + options mpv.net)"
-}
 
 # --- Shaders ---
 $shaderSrc = Join-Path $src 'shaders'
@@ -139,10 +126,4 @@ Write-Host ""
 Write-Host "Pour tester : ouvre une vidéo avec mpv et bouge la souris."
 Write-Host "Si tu vois une OSC moderne avec accent orange, c'est gagné."
 Write-Host ""
-if ($dest -ne $candidates[0]) {
-    Write-Host "ASTUCE : pour éviter que Chocolatey n'écrase ta config à la prochaine" -ForegroundColor Yellow
-    Write-Host "        mise à jour de mpvio, déplace ta config dans : $env:APPDATA\mpv" -ForegroundColor Yellow
-    Write-Host "        (mpv lit cet emplacement en priorité sur Windows)" -ForegroundColor Yellow
-    Write-Host ""
-}
 Read-Host "Appuie sur Entrée pour fermer"
