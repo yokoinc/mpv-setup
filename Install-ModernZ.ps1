@@ -118,6 +118,44 @@ foreach ($r in $toRemove) {
     }
 }
 
+# --- Associations de fichiers (mpv-install.bat) ---
+Write-Host ""
+Write-Host "==> Associations de fichiers Windows" -ForegroundColor Green
+
+$assocBat = $null
+$candidatesBat = @(
+    "C:\Program Files\MPV Player\installer\mpv-install.bat",
+    "C:\Program Files\mpv\installer\mpv-install.bat"
+)
+foreach ($c in $candidatesBat) {
+    if (Test-Path $c) { $assocBat = $c; break }
+}
+if (-not $assocBat) {
+    $mpvCmd = (Get-Command mpv -ErrorAction SilentlyContinue).Source
+    if ($mpvCmd) {
+        $maybe = Join-Path (Split-Path -Parent $mpvCmd) 'installer\mpv-install.bat'
+        if (Test-Path $maybe) { $assocBat = $maybe }
+    }
+}
+
+if (-not $assocBat) {
+    Write-Host "    mpv-install.bat introuvable (associations non modifiées)." -ForegroundColor Yellow
+} else {
+    Write-Host "    trouvé : $assocBat"
+    $rep = Read-Host "Lancer maintenant pour associer les types de fichiers a mpv ? (O/n)"
+    if ([string]::IsNullOrWhiteSpace($rep) -or $rep -match '^[OoYy]') {
+        try {
+            Write-Host "    lancement (UAC : accepte l'elevation)..." -ForegroundColor Cyan
+            Start-Process -FilePath $assocBat -Verb RunAs -Wait
+            Write-Host "    OK : associations mises a jour." -ForegroundColor Green
+        } catch {
+            Write-Host "    Echec : $($_.Exception.Message)" -ForegroundColor Red
+        }
+    } else {
+        Write-Host "    ignore."
+    }
+}
+
 Write-Host ""
 Write-Host "================================================================" -ForegroundColor Magenta
 Write-Host " Installation terminée." -ForegroundColor Magenta
