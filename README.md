@@ -62,6 +62,12 @@ What the installer does:
 > right-click > Run with PowerShell, or
 > `powershell -ExecutionPolicy Bypass -File .\Install-ModernZ.ps1`.
 
+> **⚠️ Run the installer yourself — never through the Claude desktop app.**
+> Claude's writes to `%APPDATA%` are silently redirected into its MSIX
+> sandbox (`AppData\Local\Packages\Claude_*\LocalCache\Roaming`), so the
+> real `%APPDATA%\mpv` stays untouched while everything *looks* installed.
+> This bit us on 2026-07-02: mpv ran with an empty config for weeks.
+
 ---
 
 ## Uninstall / rollback
@@ -86,7 +92,8 @@ mpv-setup/
 ├── fonts/
 │   └── modernz-icons.ttf       # icon font used by ModernZ
 ├── script-opts/
-│   └── modernz.conf            # ModernZ OSC options
+│   ├── modernz.conf            # ModernZ OSC options
+│   └── modernz-locale.json     # ModernZ translations (French UI)
 ├── scripts/
 │   ├── modernz.lua             # the ModernZ OSC
 │   └── delete_current.lua      # delete the file currently playing
