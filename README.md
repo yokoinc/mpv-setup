@@ -127,6 +127,7 @@ mpv-setup/
 │   ├── modernz.lua             # the ModernZ OSC
 │   └── delete_current.lua      # delete the file currently playing
 └── shaders/
+    ├── FSRCNNX_x2_16-0-4-1.glsl # neural luma upscaling (heavy, best quality)
     ├── CAS.glsl                # AMD Contrast Adaptive Sharpening
     ├── KrigBilateral.glsl      # chroma upscaling
     └── SSimDownscaler.glsl     # downscaling 4K -> 1080p/1440p
@@ -184,15 +185,21 @@ ModernZ. Custom bits:
 
 ## Shaders
 
-Three shaders stacked by default (cheap, big visual win):
+Shader chain, applied in order (luma → chroma → downscale → sharpen):
 
 | Shader | Role |
 |---|---|
+| `FSRCNNX_x2_16-0-4-1.glsl` | **neural luma upscaling** — big win on sub-1080p → large screen. Heavy, but a mid/high GPU (GTX 1660+, RTX 30xx) eats it. |
 | `KrigBilateral.glsl` | chroma upscaling — nearly free, noticeably sharper |
 | `SSimDownscaler.glsl` | downscale 4K → 1440p/1080p, cleaner than default |
 | `CAS.glsl` | AMD Contrast Adaptive Sharpening, light sharpen |
 
 Wired up via `glsl-shaders` / `glsl-shaders-append` in `mpv.conf`.
+
+> **FSRCNNX runs on every source** (it's an unconditional 2× luma
+> prescaler). That's ideal when upscaling; on native-4K content it's
+> wasted GPU work but harmless on a capable card. On a weak GPU, drop this
+> line from `mpv.conf` and keep the other three.
 
 ---
 
@@ -335,5 +342,5 @@ To refresh to the latest upstream:
 - [ModernZ](https://github.com/Samillion/ModernZ) v0.3.3 — modern OSC (ModernX fork).
 - [thumbfast](https://github.com/po5/thumbfast) — fast thumbnails
   (auto-integrates with ModernZ if installed).
-- Shaders: `KrigBilateral` (igv), `SSimDownscaler` (igv),
-  `CAS` (AMD, mpv port).
+- Shaders: [`FSRCNNX`](https://github.com/igv/FSRCNN-TensorFlow) (igv),
+  `KrigBilateral` (igv), `SSimDownscaler` (igv), `CAS` (AMD, mpv port).
