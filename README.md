@@ -9,8 +9,31 @@ Everything installs by double-clicking a `.bat`.
 
 ---
 
+## Quick start (new machine)
+
+Order matters — this repo ships **config only, not mpv itself**:
+
+1. **Install mpv first.** Grab the latest Windows build from
+   [shinchiro releases](https://github.com/shinchiro/mpv-winbuild-cmake/releases)
+   and install it (default: `C:\Program Files\MPV Player\`). Newer is
+   better — this config uses recent options (`gpu-next`,
+   `autocreate-playlist`), so an up-to-date mpv is required.
+2. **Get this repo.** `git clone https://github.com/yokoinc/mpv-setup`
+   or download the ZIP and extract it.
+3. **Double-click `Install-ModernZ.bat`** and confirm the default
+   destination (`%APPDATA%\mpv`).
+4. **Set mpv as default player** for `.mkv` / `.avi` — Windows only lets
+   *you* do this by hand: right-click a video → *Open with* → *Choose
+   another app* → **mpv** → tick *Always*. (An installer/script cannot
+   set the default; see [File associations](#file-associations).)
+
+That's it. Open a video, you should see the ModernZ bar in French.
+
+---
+
 ## Table of contents
 
+- [Quick start (new machine)](#quick-start-new-machine)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Uninstall / rollback](#uninstall--rollback)
@@ -21,7 +44,9 @@ Everything installs by double-clicking a `.bat`.
 - [Dynamic profiles](#dynamic-profiles)
 - [yt-dlp / YouTube](#yt-dlp--youtube)
 - [Keyboard shortcuts](#keyboard-shortcuts)
+- [File associations](#file-associations)
 - [Custom Lua scripts](#custom-lua-scripts)
+- [Updating ModernZ](#updating-modernz)
 - [Credits](#credits)
 
 ---
@@ -29,9 +54,13 @@ Everything installs by double-clicking a `.bat`.
 ## Requirements
 
 - Windows 10/11.
-- **Vanilla mpv** installed. The shinchiro build is recommended
-  (ships with the standard `mpv-install.bat`).
+- **mpv installed first** — this repo is config only, it does not contain
+  `mpv.exe`. Install a **recent** vanilla build (the shinchiro build is
+  recommended; it ships the standard `mpv-install.bat`).
   Typical location: `C:\Program Files\MPV Player\` or `C:\Program Files\mpv\`.
+- The build must read `%APPDATA%\mpv` (normal install). For a **portable**
+  build (config next to `mpv.exe`), pick the installer's `[c]` custom-path
+  option and point it at that `portable_config` folder.
 - PowerShell 5.1 (shipped with Windows).
 - For YouTube downloads from the OSC: `yt-dlp` + `ffmpeg` in `PATH`
   or next to `mpv.exe`.
@@ -232,6 +261,31 @@ mute, arrow seek, etc. — see the
 
 ---
 
+## File associations
+
+Making mpv open when you double-click a `.mkv`, `.mp4`, `.avi`, … has
+**two distinct layers** on Windows — this trips everyone up:
+
+1. **Registering mpv as an available handler.** This is what
+   `mpv-install.bat` (shinchiro) does, and the installer offers to run it.
+   It adds mpv to the *Open with* list and the *Default apps* panel.
+2. **Choosing mpv as the default** for each extension. Since Windows 8
+   this is locked behind a per-user hash in
+   `HKCU\...\FileExts\<ext>\UserChoice`. **No script or installer can set
+   it** — Windows deliberately reserves it for a human click. `mpv-install.bat`
+   itself just opens the *Default apps* panel and tells you to finish there.
+
+So after installing, set the default **by hand**, once per extension:
+
+> Right-click a video → **Open with** → **Choose another app** → **mpv**
+> → tick **Always use this app**.
+
+(`.mp4` may already point to mpv via the `mpv.file` ProgID from some
+builds; `.mkv`/`.avi` usually default to the Windows Store player until
+you change them.)
+
+---
+
 ## Custom Lua scripts
 
 ### `delete_current.lua`
@@ -243,12 +297,42 @@ Deletes the file currently playing.
 
 ---
 
+## Updating ModernZ
+
+Bundled version: **ModernZ v0.3.3**. Only `scripts/modernz.lua` is tied to
+the ModernZ release; the icon font and the locale file rarely change.
+
+To refresh to the latest upstream:
+
+1. Download the current script into this repo:
+   ```powershell
+   iwr https://raw.githubusercontent.com/Samillion/ModernZ/main/modernz.lua `
+       -OutFile scripts\modernz.lua
+   ```
+2. (Optional) refresh the translations too:
+   ```powershell
+   iwr https://raw.githubusercontent.com/Samillion/ModernZ/main/extras/locale/modernz-locale.json `
+       -OutFile script-opts\modernz-locale.json
+   ```
+3. Sanity check — every option you set in `script-opts/modernz.conf`
+   should still be recognised by the new script (an unknown option just
+   logs a warning and is ignored). Run mpv once from a terminal and watch
+   for `[modernz]` messages.
+4. Re-run `Install-ModernZ.bat` on each machine to deploy (it backs up the
+   old version first).
+
+> `language=fr` in `modernz.conf` only works because
+> `script-opts/modernz-locale.json` is present — ModernZ ships **no**
+> translations of its own. Keep that file alongside the script.
+
+---
+
 ## Credits
 
 - [mpv](https://mpv.io/) — the player.
 - [shinchiro/mpv-winbuild-cmake](https://github.com/shinchiro/mpv-winbuild-cmake)
   — vanilla Windows builds.
-- [ModernZ](https://github.com/Samillion/ModernZ) — modern OSC (ModernX fork).
+- [ModernZ](https://github.com/Samillion/ModernZ) v0.3.3 — modern OSC (ModernX fork).
 - [thumbfast](https://github.com/po5/thumbfast) — fast thumbnails
   (auto-integrates with ModernZ if installed).
 - Shaders: `KrigBilateral` (igv), `SSimDownscaler` (igv),
