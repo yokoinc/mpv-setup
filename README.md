@@ -179,7 +179,9 @@ ModernZ. Custom bits:
   chapter prev/next, logarithmic volume, playlist, **yt-dlp download**,
   screenshot, ontop, loop, speed, info, fullscreen.
 - **Behavior**: OSC reveals on bottom-zone hover (deadzone 0.5), stays
-  visible on pause, thumbnails via thumbfast.
+  visible on pause. Seekbar thumbnails need the optional
+  [thumbfast](https://github.com/po5/thumbfast) script — **not bundled**;
+  drop `thumbfast.lua` into `scripts/` to enable them.
 
 ---
 
@@ -259,8 +261,8 @@ mute, arrow seek, etc. — see the
 | `[` / `]` | Speed ÷/× 1.1 |
 | `BS` | Speed 1× |
 | `s` | Screenshot (with subs) |
-| `S` | Screenshot (no subs) |
-| `Ctrl+s` | Raw screenshot (no rendering) |
+| `S` | Screenshot (no subs, source frame) |
+| `Ctrl+s` | Screenshot of the window as displayed |
 | `q` / `Q` | Quit (Q keeps position) |
 | `j` / `J` | Cycle subtitles |
 | `#` | Cycle audio |
