@@ -116,6 +116,9 @@ What the installer does:
 mpv-setup/
 ├── Install-ModernZ.bat         # double-click launcher (Windows)
 ├── Install-ModernZ.ps1         # PowerShell installer
+├── installer/
+│   ├── mpv-install.bat         # extended copy of shinchiro's associations bat
+│   └── mpv-icon.ico            # icon used for the registered file types
 ├── mpv.conf                    # main mpv config
 ├── input.conf                  # custom key bindings (on top of defaults)
 ├── fonts/
@@ -276,8 +279,11 @@ Making mpv open when you double-click a `.mkv`, `.mp4`, `.avi`, … has
 **two distinct layers** on Windows — this trips everyone up:
 
 1. **Registering mpv as an available handler.** This is what
-   `mpv-install.bat` (shinchiro) does, and the installer offers to run it.
+   `mpv-install.bat` does, and the installer offers to run it (elevated).
    It adds mpv to the *Open with* list and the *Default apps* panel.
+   This repo bundles an **extended copy** (`installer/mpv-install.bat`)
+   with extra extensions on top of shinchiro's list: `.m4b .gif .webp
+   .avif .dsf .dff .mpc .mp+ .caf .w64 .ac4`. The installer prefers it.
 2. **Choosing mpv as the default** for each extension. Since Windows 8
    this is locked behind a per-user hash in
    `HKCU\...\FileExts\<ext>\UserChoice`. **No script or installer can set

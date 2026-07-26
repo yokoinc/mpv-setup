@@ -140,6 +140,7 @@ Write-Host "==> Associations de fichiers Windows" -ForegroundColor Green
 
 $assocBat = $null
 $candidatesBat = @(
+    (Join-Path $src 'installer\mpv-install.bat'),   # copie du depot (extensions en plus)
     "C:\Program Files\MPV Player\installer\mpv-install.bat",
     "C:\Program Files\mpv\installer\mpv-install.bat"
 )
