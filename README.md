@@ -65,8 +65,11 @@ That's it. Open a video, you should see the ModernZ bar in French.
 - For YouTube downloads from the OSC: `yt-dlp` + `ffmpeg` in `PATH`
   or next to `mpv.exe`.
 
-> Target setup: mid-range GPU (GTX 1660 / RX 6600 and up), HDR display,
-> local playback + YouTube/Twitch streaming.
+> Target setup: HDR display, local playback + YouTube/Twitch streaming.
+> The base config runs on a mid-range GPU (GTX 1660 / RX 6600 and up).
+> The default **FSRCNNX** upscaler is heavier — recommended from an
+> **RTX 30xx / equivalent** upward; on a weaker card, drop that shader
+> (see [Shaders](#shaders)).
 
 ---
 
@@ -194,7 +197,7 @@ Shader chain, applied in order (luma → chroma → downscale → sharpen):
 
 | Shader | Role |
 |---|---|
-| `FSRCNNX_x2_16-0-4-1.glsl` | **neural luma upscaling** — big win on sub-1080p → large screen. Heavy, but a mid/high GPU (GTX 1660+, RTX 30xx) eats it. |
+| `FSRCNNX_x2_16-0-4-1.glsl` | **neural luma upscaling** — big win on sub-1080p → large screen. Heavy; recommended from an **RTX 30xx / equivalent** upward. |
 | `KrigBilateral.glsl` | chroma upscaling — nearly free, noticeably sharper |
 | `SSimDownscaler.glsl` | downscale 4K → 1440p/1080p, cleaner than default |
 | `CAS.glsl` | AMD Contrast Adaptive Sharpening, light sharpen |
