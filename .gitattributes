@@ -1,0 +1,4 @@
+# Batch/PowerShell : garder les fins de ligne CRLF telles quelles.
+# CMD casse (label introuvable) sur un .bat en LF.
+*.bat -text
+*.ps1 -text

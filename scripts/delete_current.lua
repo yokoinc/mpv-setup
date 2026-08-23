@@ -1,11 +1,11 @@
 -- delete_current.lua
--- Supprime le fichier en cours de lecture.
--- Bindings (à mettre dans input.conf) :
+-- Deletes the file currently being played.
+-- Bindings (put them in input.conf):
 --   DEL         script-message delete-current recycle
 --   Shift+DEL   script-message delete-current permanent
 --
--- Mode "recycle"   -> corbeille Windows (récupérable)
--- Mode "permanent" -> suppression définitive (irréversible)
+-- Mode "recycle"   -> Windows Recycle Bin (recoverable)
+-- Mode "permanent" -> permanent delete (cannot be undone)
 
 local utils = require 'mp.utils'
 
@@ -18,11 +18,11 @@ local function delete(mode)
 
     local path = mp.get_property("path")
     if not path or path == "" then
-        osd("Aucun fichier en cours")
+        osd("No file playing")
         return
     end
     if path:match("^%a[%w+.-]*://") then
-        osd("Suppression non supportée pour les flux distants")
+        osd("Deleting remote streams is not supported")
         return
     end
 
@@ -32,7 +32,7 @@ local function delete(mode)
     local count = mp.get_property_number("playlist-count", 0)
     local pos   = mp.get_property_number("playlist-pos", -1)
 
-    -- Libère le handle avant de supprimer
+    -- Release the file handle before deleting
     if count > 1 and pos >= 0 and pos < count - 1 then
         mp.command("playlist-next")
     elseif count > 1 and pos == count - 1 then
@@ -66,10 +66,10 @@ local function delete(mode)
     })
 
     if res.status == 0 then
-        local label = (mode == "permanent") and "Supprimé définitivement" or "Envoyé à la corbeille"
-        osd(label .. " : " .. full)
+        local label = (mode == "permanent") and "Deleted permanently" or "Moved to the Recycle Bin"
+        osd(label .. ": " .. full)
     else
-        osd("Échec suppression : " .. (res.stderr or "erreur inconnue"))
+        osd("Delete failed: " .. (res.stderr or "unknown error"))
     end
 end
 

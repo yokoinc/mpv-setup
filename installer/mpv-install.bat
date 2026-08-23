@@ -1,13 +1,13 @@
 @echo off
 :: ===========================================================================
-::  mpv-install.bat  --  COPIE MODIFIEE (mpv-setup)
-::  Original : shinchiro / mpv Windows build (dans <mpv>\installer\).
-::  Modifications par rapport a l'original :
-::    - detection de mpv.exe (cette copie n'est plus a cote de l'exe)
-::    - extensions supplementaires : .m4b .gif .webp .avif .dsf .dff
+::  mpv-install.bat  --  MODIFIED COPY (mpv-setup)
+::  Original: shinchiro / mpv Windows build (from the <mpv> installer folder).
+::  Changes compared to the original:
+::    - mpv.exe detection (this copy no longer sits next to the exe)
+::    - extra extensions: .m4b .gif .webp .avif .dsf .dff
 ::      .mpc .mp+ .caf .w64 .ac4
-::  A lancer en administrateur. Enregistre mpv comme lecteur DISPONIBLE ;
-::  le choix par defaut par extension reste un clic manuel (verrou Windows).
+::  Run as administrator. Registers mpv as an AVAILABLE player;
+::  choosing it as the default per extension stays a manual click (Windows lock).
 :: ===========================================================================
 setlocal enableextensions enabledelayedexpansion
 path %SystemRoot%\System32;%SystemRoot%;%SystemRoot%\System32\Wbem;%SystemRoot%\System32\WindowsPowerShell\v1.0\
@@ -184,7 +184,7 @@ call :add_type "audio/x-mpegurl"                  "audio" "M3U Playlist"        
 call :add_type "audio/x-scpls"                    "audio" "PLS Playlist"               ".pls"
 call :add_type ""                                 "audio" "CUE Sheet"                  ".cue"
 
-:: --- Extensions supplementaires (ajout perso, au-dela de la liste shinchiro) ---
+:: --- Extra extensions (added here, beyond the shinchiro list) ---
 call :add_type "audio/mp4"      "audio" "MPEG-4 Audiobook"  ".m4b"
 call :add_type "image/gif"      "video" "GIF Animation"     ".gif"
 call :add_type "image/webp"     "video" "WebP Image"        ".webp"

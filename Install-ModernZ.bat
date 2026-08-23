@@ -1,14 +1,14 @@
 @echo off
 REM =============================================================
 REM  Install-ModernZ.bat
-REM  Double-cliquez ce fichier pour lancer Install-ModernZ.ps1
-REM  sans se soucier de l'ExecutionPolicy PowerShell.
+REM  Double-click this file to run Install-ModernZ.ps1 without
+REM  worrying about the PowerShell ExecutionPolicy.
 REM =============================================================
 setlocal
 set "PS1=%~dp0Install-ModernZ.ps1"
 
 if not exist "%PS1%" (
-    echo [ERREUR] Install-ModernZ.ps1 introuvable a cote de ce .bat.
+    echo [ERROR] Install-ModernZ.ps1 not found next to this .bat file.
     pause
     exit /b 1
 )
@@ -18,7 +18,7 @@ set "RC=%ERRORLEVEL%"
 
 if not "%RC%"=="0" (
     echo.
-    echo [Le script PowerShell s'est termine avec le code %RC%]
+    echo [The PowerShell script exited with code %RC%]
     pause
 )
 
