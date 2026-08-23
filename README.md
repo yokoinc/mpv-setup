@@ -1,244 +1,251 @@
 # mpv-setup
 
-Personal configuration for [mpv](https://mpv.io/) (vanilla shinchiro build)
-on Windows, featuring [ModernZ](https://github.com/Samillion/ModernZ) as OSC,
-quality shaders, dynamic HDR/resolution profiles, and a small script to
-delete the file currently playing.
+Configuration personnelle de [mpv](https://mpv.io/) (build vanilla shinchiro)
+sous Windows, avec [ModernZ](https://github.com/Samillion/ModernZ) comme OSC,
+des shaders de qualité, des profils dynamiques HDR/résolution, et un petit
+script pour supprimer le fichier en cours de lecture.
 
-Everything installs by double-clicking a `.bat`.
-
----
-
-## Quick start (new machine)
-
-This repo ships **config only, not mpv itself** — but the installer now
-takes care of mpv too:
-
-1. **Get this repo.** `git clone https://github.com/yokoinc/mpv-setup`
-   or download the ZIP and extract it.
-2. **Double-click `Install-ModernZ.bat`.** It first looks for `mpv.exe`;
-   if it is missing, it offers to install the
-   [shinchiro build](https://github.com/shinchiro/mpv-winbuild-cmake)
-   via `winget install shinchiro.mpv` (accept the UAC prompt). Then
-   confirm the config destination (`%APPDATA%\mpv`).
-3. **Set mpv as default player** for `.mkv` / `.avi` — Windows only lets
-   *you* do this by hand: right-click a video → *Open with* → *Choose
-   another app* → **mpv** → tick *Always*. (An installer/script cannot
-   set the default; see [File associations](#file-associations).)
-
-If `winget` is unavailable, install mpv manually from the
-[shinchiro releases](https://github.com/shinchiro/mpv-winbuild-cmake/releases)
-(default: `C:\Program Files\MPV Player\`) and re-run the `.bat`. A **recent**
-build is required — this config uses `gpu-next` and `autocreate-playlist`.
-
-> **Note:** if a `portable_config` folder sits next to `mpv.exe`, mpv ignores
-> `%APPDATA%\mpv` entirely. The installer warns you and lets you target that
-> folder instead via the `[c]` option.
-
-That's it. Open a video, you should see the ModernZ bar in French.
+Tout s'installe en double-cliquant un `.bat`.
 
 ---
 
-## Table of contents
+## Démarrage rapide (nouvelle machine)
 
-- [Quick start (new machine)](#quick-start-new-machine)
-- [Requirements](#requirements)
+Ce dépôt fournit **la config uniquement, pas mpv lui-même** — mais
+l'installeur s'occupe désormais aussi de mpv :
+
+1. **Récupère ce dépôt.** `git clone https://github.com/yokoinc/mpv-setup`
+   ou télécharge le ZIP et extrais-le.
+2. **Double-clique `Install-ModernZ.bat`.** Il cherche d'abord `mpv.exe` ;
+   s'il est absent, il propose d'installer le
+   [build shinchiro](https://github.com/shinchiro/mpv-winbuild-cmake)
+   via `winget install shinchiro.mpv` (accepte l'élévation UAC). Confirme
+   ensuite la destination de la config (`%APPDATA%\mpv`).
+3. **Définis mpv comme lecteur par défaut** pour `.mkv` / `.avi` — Windows
+   ne laisse que *toi* le faire à la main : clic droit sur une vidéo →
+   *Ouvrir avec* → *Choisir une autre application* → **mpv** → coche
+   *Toujours*. (Aucun installeur ni script ne peut définir le défaut ;
+   voir [Associations de fichiers](#associations-de-fichiers).)
+
+Si `winget` n'est pas disponible, installe mpv à la main depuis les
+[releases shinchiro](https://github.com/shinchiro/mpv-winbuild-cmake/releases)
+(par défaut : `C:\Program Files\MPV Player\`) puis relance le `.bat`. Un build
+**récent** est indispensable — cette config utilise `gpu-next` et
+`autocreate-playlist`.
+
+> **Note :** si un dossier `portable_config` se trouve à côté de `mpv.exe`,
+> mpv ignore complètement `%APPDATA%\mpv`. L'installeur t'avertit et te
+> permet de viser ce dossier à la place via l'option `[c]`.
+
+C'est tout. Ouvre une vidéo, tu devrais voir la barre ModernZ en français.
+
+---
+
+## Sommaire
+
+- [Démarrage rapide (nouvelle machine)](#démarrage-rapide-nouvelle-machine)
+- [Prérequis](#prérequis)
 - [Installation](#installation)
-- [Uninstall / rollback](#uninstall--rollback)
-- [Repository layout](#repository-layout)
-- [mpv configuration (`mpv.conf`)](#mpv-configuration-mpvconf)
-- [ModernZ OSC (`script-opts/modernz.conf`)](#modernz-osc-script-optsmodernzconf)
+- [Désinstallation / retour arrière](#désinstallation--retour-arrière)
+- [Arborescence du dépôt](#arborescence-du-dépôt)
+- [Configuration mpv (`mpv.conf`)](#configuration-mpv-mpvconf)
+- [OSC ModernZ (`script-opts/modernz.conf`)](#osc-modernz-script-optsmodernzconf)
 - [Shaders](#shaders)
-- [Dynamic profiles](#dynamic-profiles)
+- [Profils dynamiques](#profils-dynamiques)
 - [yt-dlp / YouTube](#yt-dlp--youtube)
-- [Keyboard shortcuts](#keyboard-shortcuts)
-- [File associations](#file-associations)
-- [Custom Lua scripts](#custom-lua-scripts)
-- [Updating ModernZ](#updating-modernz)
-- [Credits](#credits)
+- [Raccourcis clavier](#raccourcis-clavier)
+- [Associations de fichiers](#associations-de-fichiers)
+- [Scripts Lua maison](#scripts-lua-maison)
+- [Mettre à jour ModernZ](#mettre-à-jour-modernz)
+- [Crédits](#crédits)
 
 ---
 
-## Requirements
+## Prérequis
 
 - Windows 10/11.
-- **mpv** — this repo is config only, it does not contain `mpv.exe`. The
-  installer detects it and, if missing, installs the **recent** shinchiro
-  build via `winget` (package `shinchiro.mpv`). Installing it yourself
-  beforehand works too.
-  Typical location: `C:\Program Files\MPV Player\` or `C:\Program Files\mpv\`.
-- **winget** (App Installer, preinstalled on Windows 11) — only needed if
-  you want the installer to fetch mpv for you.
-- The build must read `%APPDATA%\mpv` (normal install). For a **portable**
-  build (config next to `mpv.exe`), pick the installer's `[c]` custom-path
-  option and point it at that `portable_config` folder.
-- PowerShell 5.1 (shipped with Windows).
-- For YouTube downloads from the OSC: `yt-dlp` + `ffmpeg` in `PATH`
-  or next to `mpv.exe`.
+- **mpv** — ce dépôt ne contient que de la config, pas `mpv.exe`.
+  L'installeur le détecte et, s'il manque, installe le build shinchiro
+  **récent** via `winget` (paquet `shinchiro.mpv`). L'installer toi-même
+  au préalable fonctionne aussi.
+  Emplacement typique : `C:\Program Files\MPV Player\` ou `C:\Program Files\mpv\`.
+- **winget** (App Installer, préinstallé sur Windows 11) — nécessaire
+  uniquement si tu veux que l'installeur récupère mpv pour toi.
+- Le build doit lire `%APPDATA%\mpv` (installation normale). Pour un build
+  **portable** (config à côté de `mpv.exe`), choisis l'option `[c]` de
+  l'installeur et pointe-la vers ce dossier `portable_config`.
+- PowerShell 5.1 (fourni avec Windows).
+- Pour les téléchargements YouTube depuis l'OSC : `yt-dlp` + `ffmpeg` dans
+  le `PATH` ou à côté de `mpv.exe`.
 
-> Target setup: HDR display, local playback + YouTube/Twitch streaming.
-> The base config runs on a mid-range GPU (GTX 1660 / RX 6600 and up).
-> The default **FSRCNNX** upscaler is heavier — recommended from an
-> **RTX 30xx / equivalent** upward; on a weaker card, drop that shader
-> (see [Shaders](#shaders)).
+> Configuration cible : écran HDR, lecture locale + streaming YouTube/Twitch.
+> La config de base tourne sur un GPU milieu de gamme (GTX 1660 / RX 6600 et
+> au-dessus). L'upscaler **FSRCNNX** activé par défaut est plus lourd —
+> conseillé à partir d'une **RTX 30xx / équivalent** ; sur une carte plus
+> modeste, retire ce shader (voir [Shaders](#shaders)).
 
 ---
 
 ## Installation
 
-1. Clone or download this repository.
-2. **Double-click `Install-ModernZ.bat`**.
-   - The `.bat` runs `Install-ModernZ.ps1` with `-ExecutionPolicy Bypass`
-     to avoid the usual PowerShell policy friction.
-3. Confirm the destination (default: `%APPDATA%\mpv`).
-4. At the end the script offers to run `mpv-install.bat` (shinchiro's
-   installer) with UAC elevation to register Windows file associations.
-   Accept if you want mpv to become the default player.
+1. Clone ou télécharge ce dépôt.
+2. **Double-clique `Install-ModernZ.bat`**.
+   - Le `.bat` lance `Install-ModernZ.ps1` avec `-ExecutionPolicy Bypass`
+     pour éviter les frictions habituelles avec la politique PowerShell.
+3. Confirme la destination (par défaut : `%APPDATA%\mpv`).
+4. À la fin, le script propose de lancer `mpv-install.bat` (l'installeur
+   de shinchiro) avec élévation UAC pour enregistrer les associations de
+   fichiers Windows. Accepte si tu veux que mpv devienne le lecteur par
+   défaut.
 
-What the installer does:
-- copies `mpv.conf`, `input.conf`, `scripts/`, `script-opts/`, `shaders/`, `fonts/`;
-- backs up any existing file into `<dest>/_backup-YYYYMMDD-HHMMSS/`;
-- cleans up old orphan files (`modernx.lua`, `modernx-osc-icon.ttf`, …);
-- offers to register Windows file associations (UAC).
+Ce que fait l'installeur :
+- copie `mpv.conf`, `input.conf`, `scripts/`, `script-opts/`, `shaders/`, `fonts/` ;
+- sauvegarde tout fichier existant dans `<dest>/_backup-AAAAMMJJ-HHMMSS/` ;
+- nettoie les vieux fichiers orphelins (`modernx.lua`, `modernx-osc-icon.ttf`, …) ;
+- propose d'enregistrer les associations de fichiers Windows (UAC).
 
-> If you prefer, you can still run the `.ps1` directly:
-> right-click > Run with PowerShell, or
+> Si tu préfères, tu peux toujours lancer le `.ps1` directement :
+> clic droit > Exécuter avec PowerShell, ou
 > `powershell -ExecutionPolicy Bypass -File .\Install-ModernZ.ps1`.
 
-> **⚠️ Run the installer yourself — never through the Claude desktop app.**
-> Claude's writes to `%APPDATA%` are silently redirected into its MSIX
-> sandbox (`AppData\Local\Packages\Claude_*\LocalCache\Roaming`), so the
-> real `%APPDATA%\mpv` stays untouched while everything *looks* installed.
-> This bit us on 2026-07-02: mpv ran with an empty config for weeks.
+> **⚠️ Lance l'installeur toi-même — jamais via l'application de bureau Claude.**
+> Les écritures de Claude dans `%APPDATA%` sont silencieusement redirigées
+> vers son bac à sable MSIX
+> (`AppData\Local\Packages\Claude_*\LocalCache\Roaming`) : le vrai
+> `%APPDATA%\mpv` reste intact alors que tout *semble* installé.
+> Ça nous est arrivé le 02/07/2026 : mpv a tourné avec une config vide
+> pendant des semaines.
 
 ---
 
-## Uninstall / rollback
+## Désinstallation / retour arrière
 
-- **Restore the previous config**: the `_backup-YYYYMMDD-HHMMSS` folder
-  created under `%APPDATA%\mpv` contains every file that was overwritten.
-- **Remove Windows file associations**: run
-  `C:\Program Files\MPV Player\installer\mpv-uninstall.bat` as admin.
-- **Full removal**: delete `%APPDATA%\mpv` (also wipes `watch-later`
-  history).
+- **Restaurer la config précédente** : le dossier `_backup-AAAAMMJJ-HHMMSS`
+  créé dans `%APPDATA%\mpv` contient tous les fichiers qui ont été écrasés.
+- **Retirer les associations de fichiers Windows** : lance
+  `C:\Program Files\MPV Player\installer\mpv-uninstall.bat` en administrateur.
+- **Suppression complète** : supprime `%APPDATA%\mpv` (efface aussi
+  l'historique `watch-later`).
 
 ---
 
-## Repository layout
+## Arborescence du dépôt
 
 ```
 mpv-setup/
-├── Install-ModernZ.bat         # double-click launcher (Windows)
-├── Install-ModernZ.ps1         # PowerShell installer
+├── Install-ModernZ.bat         # lanceur à double-cliquer (Windows)
+├── Install-ModernZ.ps1         # installeur PowerShell
 ├── installer/
-│   ├── mpv-install.bat         # extended copy of shinchiro's associations bat
-│   └── mpv-icon.ico            # icon used for the registered file types
-├── mpv.conf                    # main mpv config
-├── input.conf                  # custom key bindings (on top of defaults)
+│   ├── mpv-install.bat         # copie étendue du .bat d'associations de shinchiro
+│   └── mpv-icon.ico            # icône des types de fichiers enregistrés
+├── mpv.conf                    # config principale de mpv
+├── input.conf                  # raccourcis personnalisés (en plus des défauts)
 ├── fonts/
-│   └── modernz-icons.ttf       # icon font used by ModernZ
+│   └── modernz-icons.ttf       # police d'icônes utilisée par ModernZ
 ├── script-opts/
-│   ├── modernz.conf            # ModernZ OSC options
-│   └── modernz-locale.json     # ModernZ translations (French UI)
+│   ├── modernz.conf            # options de l'OSC ModernZ
+│   └── modernz-locale.json     # traductions ModernZ (interface en français)
 ├── scripts/
-│   ├── modernz.lua             # the ModernZ OSC
-│   └── delete_current.lua      # delete the file currently playing
+│   ├── modernz.lua             # l'OSC ModernZ
+│   └── delete_current.lua      # supprime le fichier en cours de lecture
 └── shaders/
-    ├── FSRCNNX_x2_16-0-4-1.glsl # neural luma upscaling (heavy, best quality)
+    ├── FSRCNNX_x2_16-0-4-1.glsl # upscaling luma neural (lourd, qualité max)
     ├── CAS.glsl                # AMD Contrast Adaptive Sharpening
-    ├── KrigBilateral.glsl      # chroma upscaling
+    ├── KrigBilateral.glsl      # upscaling chroma
     └── SSimDownscaler.glsl     # downscaling 4K -> 1080p/1440p
 ```
 
 ---
 
-## mpv configuration (`mpv.conf`)
+## Configuration mpv (`mpv.conf`)
 
-Highlights.
+Les points marquants.
 
-### Video pipeline
-- `profile=high-quality` + `vo=gpu-next`: modern backend, ewa_lanczossharp, basic deband.
-- `hwdec=auto-safe`: safe hardware decoding, saves CPU.
-- `dither-depth=auto` + `temporal-dither=yes`: anti-banding on 8-bit displays.
-- `video-sync=display-resample` + `interpolation=yes` + `tscale=oversample`: smooth playback, judder gone.
+### Pipeline vidéo
+- `profile=high-quality` + `vo=gpu-next` : backend moderne, ewa_lanczossharp, deband de base.
+- `hwdec=auto-safe` : décodage matériel sûr, économise le CPU.
+- `dither-depth=auto` + `temporal-dither=yes` : anti-banding sur les écrans 8 bits.
+- `video-sync=display-resample` + `interpolation=yes` + `tscale=oversample` : lecture fluide, judder éliminé.
 
 ### HDR
-- `target-colorspace-hint=yes`: HDR passthrough to the display (via gpu-next).
-- `tone-mapping=bt.2446a`: modern algorithm to map UHD HDR to SDR when needed.
-- `hdr-compute-peak=yes`: per-scene dynamic adjustment.
+- `target-colorspace-hint=yes` : passthrough HDR vers l'écran (via gpu-next).
+- `tone-mapping=bt.2446a` : algorithme moderne pour ramener l'HDR UHD en SDR si besoin.
+- `hdr-compute-peak=yes` : ajustement dynamique scène par scène.
 
-### Deband (anti-banding for streaming)
+### Deband (anti-banding pour le streaming)
 - `deband=yes`, `deband-iterations=4`, `deband-threshold=48`, `deband-grain=24`.
-- Especially useful on low-bitrate YouTube/Twitch.
+- Particulièrement utile sur YouTube/Twitch à faible bitrate.
 
-### Audio / subtitles
-- Track priority: `fr`, `fre`, `fra`, `en`, `eng`.
+### Audio / sous-titres
+- Priorité des pistes : `fr`, `fre`, `fra`, `en`, `eng`.
 - `volume-max=150`, `audio-pitch-correction=yes`.
-- Subtitles: Noto Sans 42px, black border 2.5, light shadow, `sub-ass-override=force`.
+- Sous-titres : Noto Sans 42px, bordure noire 2.5, ombre légère, `sub-ass-override=force`.
 
-### Screenshots
-- High bit-depth PNG into `~~desktop/`, template `name-HH.MM.SS-#N`.
+### Captures d'écran
+- PNG en haute profondeur de bits dans `~~desktop/`, modèle `nom-HH.MM.SS-#N`.
 
-### Network cache
+### Cache réseau
 - `cache-secs=120`, `demuxer-max-bytes=400MiB`.
 
 ---
 
-## ModernZ OSC (`script-opts/modernz.conf`)
+## OSC ModernZ (`script-opts/modernz.conf`)
 
-mpv's built-in OSC is disabled (`osc=no` in `mpv.conf`) and replaced by
-ModernZ. Custom bits:
+L'OSC intégré de mpv est désactivé (`osc=no` dans `mpv.conf`) et remplacé
+par ModernZ. Les réglages personnalisés :
 
-- **Language**: `language=fr`, layout `modern`, `fluent` mixed icons.
-- **Accent color**: warm orange `#FF8232` (alternative palettes commented
-  in the file: Material Blue, Violet, Emerald Green, Netflix Red).
-- **Enabled buttons**: subtitles, audio tracks, jump ±10 s / ±60 s,
-  chapter prev/next, logarithmic volume, playlist, **yt-dlp download**,
-  screenshot, ontop, loop, speed, info, fullscreen.
-- **Behavior**: OSC reveals on bottom-zone hover (deadzone 0.5), stays
-  visible on pause. Seekbar thumbnails need the optional
-  [thumbfast](https://github.com/po5/thumbfast) script — **not bundled**;
-  drop `thumbfast.lua` into `scripts/` to enable them.
+- **Langue** : `language=fr`, layout `modern`, icônes mixtes `fluent`.
+- **Couleur d'accent** : orange chaud `#FF8232` (palettes alternatives en
+  commentaire dans le fichier : Material Blue, Violet, Vert Émeraude,
+  Rouge Netflix).
+- **Boutons activés** : sous-titres, pistes audio, saut ±10 s / ±60 s,
+  chapitre précédent/suivant, volume logarithmique, playlist,
+  **téléchargement yt-dlp**, capture d'écran, ontop, boucle, vitesse,
+  infos, plein écran.
+- **Comportement** : l'OSC apparaît au survol de la zone basse (deadzone
+  0.5) et reste visible en pause. Les miniatures de la seekbar nécessitent
+  le script optionnel [thumbfast](https://github.com/po5/thumbfast) —
+  **non fourni** ; dépose `thumbfast.lua` dans `scripts/` pour les activer.
 
 ---
 
 ## Shaders
 
-Shader chain, applied in order (luma → chroma → downscale → sharpen):
+Chaîne de shaders, appliquée dans l'ordre (luma → chroma → downscale → sharpen) :
 
-| Shader | Role |
+| Shader | Rôle |
 |---|---|
-| `FSRCNNX_x2_16-0-4-1.glsl` | **neural luma upscaling** — big win on sub-1080p → large screen. Heavy; recommended from an **RTX 30xx / equivalent** upward. |
-| `KrigBilateral.glsl` | chroma upscaling — nearly free, noticeably sharper |
-| `SSimDownscaler.glsl` | downscale 4K → 1440p/1080p, cleaner than default |
-| `CAS.glsl` | AMD Contrast Adaptive Sharpening, light sharpen |
+| `FSRCNNX_x2_16-0-4-1.glsl` | **upscaling luma neural** — gros gain sur du sub-1080p → grand écran. Lourd ; conseillé à partir d'une **RTX 30xx / équivalent**. |
+| `KrigBilateral.glsl` | upscaling chroma — quasi gratuit, nettement plus net |
+| `SSimDownscaler.glsl` | downscale 4K → 1440p/1080p, plus propre que le défaut |
+| `CAS.glsl` | AMD Contrast Adaptive Sharpening, accentuation légère |
 
-Wired up via `glsl-shaders` / `glsl-shaders-append` in `mpv.conf`.
+Branchés via `glsl-shaders` / `glsl-shaders-append` dans `mpv.conf`.
 
-> **FSRCNNX runs on every source** (it's an unconditional 2× luma
-> prescaler). That's ideal when upscaling; on native-4K content it's
-> wasted GPU work but harmless on a capable card. On a weak GPU, drop this
-> line from `mpv.conf` and keep the other three.
+> **FSRCNNX s'applique à toutes les sources** (c'est un prescaler luma 2×
+> inconditionnel). C'est idéal en upscaling ; sur du 4K natif c'est du GPU
+> gaspillé, mais sans dommage sur une carte capable. Sur un GPU modeste,
+> retire cette ligne de `mpv.conf` et garde les trois autres.
 
 ---
 
-## Dynamic profiles
+## Profils dynamiques
 
-Three profiles auto-activate based on content:
+Trois profils s'activent automatiquement selon le contenu :
 
-| Profile | Condition | Effect |
+| Profil | Condition | Effet |
 |---|---|---|
 | `hdr-display` | source bt.2020 / PQ / HLG | tone-mapping=auto, target-peak=auto |
-| `high-res` | height ≥ 1440 px | deband-iterations reduced to 2 (preserves fine detail) |
-| `low-res` | height < 720 px (DVD, old YouTube) | deband-iterations=4, threshold=64 |
+| `high-res` | hauteur ≥ 1440 px | deband-iterations réduit à 2 (préserve les fins détails) |
+| `low-res` | hauteur < 720 px (DVD, vieux YouTube) | deband-iterations=4, threshold=64 |
 
-All use `profile-restore=copy` (clean fall-back to defaults).
+Tous utilisent `profile-restore=copy` (retour propre aux valeurs par défaut).
 
 ---
 
 ## yt-dlp / YouTube
 
-Format defined in `mpv.conf`:
+Format défini dans `mpv.conf` :
 
 ```
 ytdl-format=bv*[vcodec~='^(av01)'][height<=2160]+ba/
@@ -246,123 +253,128 @@ ytdl-format=bv*[vcodec~='^(av01)'][height<=2160]+ba/
             bv*[height<=2160]+ba/best
 ```
 
-Priority **AV1 → VP9 → rest**, capped at 2160p, best audio track.
-Auto subtitles in French + English.
+Priorité **AV1 → VP9 → reste**, plafonné à 2160p, meilleure piste audio.
+Sous-titres automatiques en français + anglais.
 
-ModernZ's "download" button saves into `~~desktop/mpv/`.
+Le bouton « télécharger » de ModernZ enregistre dans `~~desktop/mpv/`.
 
 ---
 
-## Keyboard shortcuts
+## Raccourcis clavier
 
-mpv's default bindings stay active (Space pause, `f` fullscreen, `m`
-mute, arrow seek, etc. — see the
-[official docs](https://mpv.io/manual/master/#keyboard-control)).
+Les raccourcis par défaut de mpv restent actifs (Espace pause, `f` plein
+écran, `m` muet, flèches pour naviguer, etc. — voir la
+[documentation officielle](https://mpv.io/manual/master/#keyboard-control)).
 
-### Custom additions (`input.conf`)
+### Ajouts personnalisés (`input.conf`)
 
-| Key | Action |
+| Touche | Action |
 |---|---|
-| `DEL` | Send the current file to the recycle bin (recoverable) |
-| `Shift+DEL` | Permanently delete the current file (no undo) |
+| `SUPPR` | Envoie le fichier courant à la corbeille (récupérable) |
+| `Maj+SUPPR` | Supprime définitivement le fichier courant (irréversible) |
 
-### Useful ModernZ / mpv defaults (reminder)
+### Défauts ModernZ / mpv utiles (rappel)
 
-| Key | Action |
+| Touche | Action |
 |---|---|
-| `Space` / `p` | Pause |
-| `f` | Fullscreen |
-| `m` | Mute |
-| `←` / `→` | Seek ±5 s |
-| `↑` / `↓` | Seek ±60 s |
-| `[` / `]` | Speed ÷/× 1.1 |
-| `BS` | Speed 1× |
-| `s` | Screenshot (with subs) |
-| `S` | Screenshot (no subs, source frame) |
-| `Ctrl+s` | Screenshot of the window as displayed |
-| `q` / `Q` | Quit (Q keeps position) |
-| `j` / `J` | Cycle subtitles |
-| `#` | Cycle audio |
-| `o` / `O` | Toggle OSD |
+| `Espace` / `p` | Pause |
+| `f` | Plein écran |
+| `m` | Muet |
+| `←` / `→` | Navigation ±5 s |
+| `↑` / `↓` | Navigation ±60 s |
+| `[` / `]` | Vitesse ÷/× 1.1 |
+| `Retour arrière` | Vitesse 1× |
+| `s` | Capture d'écran (avec sous-titres) |
+| `S` | Capture d'écran (sans sous-titres, image source) |
+| `Ctrl+s` | Capture de la fenêtre telle qu'affichée |
+| `q` / `Q` | Quitter (Q conserve la position) |
+| `j` / `J` | Faire défiler les sous-titres |
+| `#` | Faire défiler les pistes audio |
+| `o` / `O` | Afficher/masquer l'OSD |
 
 ---
 
-## File associations
+## Associations de fichiers
 
-Making mpv open when you double-click a `.mkv`, `.mp4`, `.avi`, … has
-**two distinct layers** on Windows — this trips everyone up:
+Faire en sorte que mpv s'ouvre quand tu double-cliques un `.mkv`, `.mp4`,
+`.avi`, … repose sur **deux couches distinctes** sous Windows — c'est ce
+qui piège tout le monde :
 
-1. **Registering mpv as an available handler.** This is what
-   `mpv-install.bat` does, and the installer offers to run it (elevated).
-   It adds mpv to the *Open with* list and the *Default apps* panel.
-   This repo bundles an **extended copy** (`installer/mpv-install.bat`)
-   with extra extensions on top of shinchiro's list: `.m4b .gif .webp
-   .avif .dsf .dff .mpc .mp+ .caf .w64 .ac4`. The installer prefers it.
-2. **Choosing mpv as the default** for each extension. Since Windows 8
-   this is locked behind a per-user hash in
-   `HKCU\...\FileExts\<ext>\UserChoice`. **No script or installer can set
-   it** — Windows deliberately reserves it for a human click. `mpv-install.bat`
-   itself just opens the *Default apps* panel and tells you to finish there.
+1. **Enregistrer mpv comme gestionnaire disponible.** C'est ce que fait
+   `mpv-install.bat`, et l'installeur propose de le lancer (avec élévation).
+   Il ajoute mpv à la liste *Ouvrir avec* et au panneau *Applications par
+   défaut*. Ce dépôt embarque une **copie étendue**
+   (`installer/mpv-install.bat`) avec des extensions en plus par rapport à
+   la liste de shinchiro : `.m4b .gif .webp .avif .dsf .dff .mpc .mp+ .caf
+   .w64 .ac4`. L'installeur la privilégie.
+2. **Choisir mpv comme défaut** pour chaque extension. Depuis Windows 8,
+   c'est verrouillé derrière un hash par utilisateur dans
+   `HKCU\...\FileExts\<ext>\UserChoice`. **Aucun script ni installeur ne
+   peut le définir** — Windows le réserve délibérément à un clic humain.
+   `mpv-install.bat` lui-même se contente d'ouvrir le panneau
+   *Applications par défaut* et de te dire de finir là-bas.
 
-So after installing, set the default **by hand**, once per extension:
+Après installation, définis donc le défaut **à la main**, une fois par
+extension :
 
-> Right-click a video → **Open with** → **Choose another app** → **mpv**
-> → tick **Always use this app**.
+> Clic droit sur une vidéo → **Ouvrir avec** → **Choisir une autre
+> application** → **mpv** → coche **Toujours utiliser cette application**.
 
-(`.mp4` may already point to mpv via the `mpv.file` ProgID from some
-builds; `.mkv`/`.avi` usually default to the Windows Store player until
-you change them.)
+(`.mp4` pointe peut-être déjà vers mpv via le ProgID `mpv.file` de certains
+builds ; `.mkv`/`.avi` restent en général sur le lecteur du Windows Store
+tant que tu ne les changes pas.)
 
 ---
 
-## Custom Lua scripts
+## Scripts Lua maison
 
 ### `delete_current.lua`
-Deletes the file currently playing.
-- `recycle` mode: Windows recycle bin (recoverable).
-- `permanent` mode: permanent deletion.
-- Refuses remote streams (`http://`, etc.).
-- Bindings in `input.conf` (`DEL` / `Shift+DEL`).
+Supprime le fichier en cours de lecture.
+- Mode `recycle` : corbeille Windows (récupérable).
+- Mode `permanent` : suppression définitive.
+- Refuse les flux distants (`http://`, etc.).
+- Raccourcis dans `input.conf` (`SUPPR` / `Maj+SUPPR`).
 
 ---
 
-## Updating ModernZ
+## Mettre à jour ModernZ
 
-Bundled version: **ModernZ v0.3.3**. Only `scripts/modernz.lua` is tied to
-the ModernZ release; the icon font and the locale file rarely change.
+Version fournie : **ModernZ v0.3.3**. Seul `scripts/modernz.lua` est lié à
+la release ModernZ ; la police d'icônes et le fichier de locale changent
+rarement.
 
-To refresh to the latest upstream:
+Pour passer à la dernière version amont :
 
-1. Download the current script into this repo:
+1. Télécharge le script courant dans ce dépôt :
    ```powershell
    iwr https://raw.githubusercontent.com/Samillion/ModernZ/main/modernz.lua `
        -OutFile scripts\modernz.lua
    ```
-2. (Optional) refresh the translations too:
+2. (Optionnel) rafraîchis aussi les traductions :
    ```powershell
    iwr https://raw.githubusercontent.com/Samillion/ModernZ/main/extras/locale/modernz-locale.json `
        -OutFile script-opts\modernz-locale.json
    ```
-3. Sanity check — every option you set in `script-opts/modernz.conf`
-   should still be recognised by the new script (an unknown option just
-   logs a warning and is ignored). Run mpv once from a terminal and watch
-   for `[modernz]` messages.
-4. Re-run `Install-ModernZ.bat` on each machine to deploy (it backs up the
-   old version first).
+3. Vérification — chaque option définie dans `script-opts/modernz.conf`
+   devrait toujours être reconnue par le nouveau script (une option
+   inconnue génère juste un avertissement et est ignorée). Lance mpv une
+   fois depuis un terminal et surveille les messages `[modernz]`.
+4. Relance `Install-ModernZ.bat` sur chaque machine pour déployer (il
+   sauvegarde l'ancienne version d'abord).
 
-> `language=fr` in `modernz.conf` only works because
-> `script-opts/modernz-locale.json` is present — ModernZ ships **no**
-> translations of its own. Keep that file alongside the script.
+> `language=fr` dans `modernz.conf` ne fonctionne que parce que
+> `script-opts/modernz-locale.json` est présent — ModernZ ne fournit
+> **aucune** traduction en propre. Garde ce fichier à côté du script.
 
 ---
 
-## Credits
+## Crédits
 
-- [mpv](https://mpv.io/) — the player.
+- [mpv](https://mpv.io/) — le lecteur.
 - [shinchiro/mpv-winbuild-cmake](https://github.com/shinchiro/mpv-winbuild-cmake)
-  — vanilla Windows builds.
-- [ModernZ](https://github.com/Samillion/ModernZ) v0.3.3 — modern OSC (ModernX fork).
-- [thumbfast](https://github.com/po5/thumbfast) — fast thumbnails
-  (auto-integrates with ModernZ if installed).
-- Shaders: [`FSRCNNX`](https://github.com/igv/FSRCNN-TensorFlow) (igv),
-  `KrigBilateral` (igv), `SSimDownscaler` (igv), `CAS` (AMD, mpv port).
+  — les builds Windows vanilla.
+- [ModernZ](https://github.com/Samillion/ModernZ) v0.3.3 — OSC moderne (fork de ModernX).
+- [thumbfast](https://github.com/po5/thumbfast) — miniatures rapides
+  (s'intègre automatiquement à ModernZ si installé).
+- Shaders : [`FSRCNNX`](https://github.com/igv/FSRCNN-TensorFlow) (igv),
+  `KrigBilateral` (igv), `SSimDownscaler` (igv), `CAS` (AMD, portage mpv).
