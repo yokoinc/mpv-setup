@@ -1,4 +1,4 @@
-# =============================================================
+﻿# =============================================================
 #  Install-ModernZ.ps1
 #  Installe ModernZ + ta config polie pour mpv vanilla.
 #
@@ -8,6 +8,8 @@
 #   2. Confirmer l'emplacement cible (défaut : %APPDATA%\mpv)
 #
 #  Le script :
+#   - verifie que mpv est installe ; sinon propose de l'installer
+#     via winget (paquet shinchiro.mpv)
 #   - copie mpv.conf, input.conf, scripts, script-opts, shaders, fonts
 #   - sauvegarde tout fichier existant dans _backup-YYYYMMDD-HHMMSS
 #   - nettoie les vieux fichiers orphelins (modernx, etc.)
@@ -22,6 +24,85 @@ $ErrorActionPreference = 'Stop'
 $src = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 Write-Host "==> Source : $src" -ForegroundColor Cyan
+
+# --- Vérification / installation de mpv ---
+# Cette config ne contient QUE des réglages : sans mpv.exe, elle ne sert à rien.
+function Find-MpvExe {
+    $paths = @(
+        "$env:ProgramFiles\MPV Player\mpv.exe",
+        "$env:ProgramFiles\mpv\mpv.exe",
+        "${env:ProgramFiles(x86)}\MPV Player\mpv.exe",
+        "${env:ProgramFiles(x86)}\mpv\mpv.exe",
+        "$env:LOCALAPPDATA\Programs\MPV Player\mpv.exe",
+        "$env:LOCALAPPDATA\Programs\mpv\mpv.exe"
+    )
+    foreach ($p in $paths) { if ($p -and (Test-Path $p)) { return $p } }
+
+    $appPaths = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\mpv.exe'
+    $reg = (Get-ItemProperty -Path $appPaths -ErrorAction SilentlyContinue).'(default)'
+    if ($reg -and (Test-Path $reg)) { return $reg }
+
+    $cmd = Get-Command mpv.exe -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+
+    return $null
+}
+
+Write-Host ""
+Write-Host "==> Recherche de mpv" -ForegroundColor Cyan
+$mpvExe = Find-MpvExe
+
+if ($mpvExe) {
+    Write-Host "    trouvé : $mpvExe" -ForegroundColor Green
+} else {
+    Write-Host "    mpv n'est pas installé sur cette machine." -ForegroundColor Yellow
+    Write-Host ""
+
+    if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
+        Write-Host "    winget est introuvable : installation automatique impossible." -ForegroundColor Red
+        Write-Host "    Installe mpv à la main puis relance ce script :"
+        Write-Host "      https://github.com/shinchiro/mpv-winbuild-cmake/releases"
+        Read-Host "Appuie sur Entrée pour fermer"
+        exit 1
+    }
+
+    $rep = Read-Host "Installer mpv maintenant via winget (shinchiro.mpv) ? (O/n)"
+    if (-not ([string]::IsNullOrWhiteSpace($rep) -or $rep -match '^[OoYy]')) {
+        Write-Host "    Annulé : installe mpv puis relance ce script." -ForegroundColor Yellow
+        Read-Host "Appuie sur Entrée pour fermer"
+        exit 1
+    }
+
+    Write-Host "    installation en cours (UAC : accepte l'élévation)..." -ForegroundColor Cyan
+    # winget écrit sur stderr : on relâche ErrorActionPreference le temps de l'appel.
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    & winget.exe install --id shinchiro.mpv --source winget --exact `
+        --accept-package-agreements --accept-source-agreements
+    $rc = $LASTEXITCODE
+    $ErrorActionPreference = $prevEap
+
+    $mpvExe = Find-MpvExe
+    if (-not $mpvExe) {
+        Write-Host ""
+        Write-Host "    Échec de l'installation (winget a retourné $rc)." -ForegroundColor Red
+        Write-Host "    Installe mpv à la main puis relance ce script :"
+        Write-Host "      https://github.com/shinchiro/mpv-winbuild-cmake/releases"
+        Read-Host "Appuie sur Entrée pour fermer"
+        exit 1
+    }
+    Write-Host "    OK : mpv installé -> $mpvExe" -ForegroundColor Green
+}
+
+# --- Piège classique : portable_config à côté de mpv.exe ---
+$portableCfg = Join-Path (Split-Path -Parent $mpvExe) 'portable_config'
+if (Test-Path $portableCfg) {
+    Write-Host ""
+    Write-Host "    ATTENTION : un dossier portable_config existe à côté de mpv.exe :" -ForegroundColor Yellow
+    Write-Host "      $portableCfg"
+    Write-Host "    Tant qu'il est là, mpv IGNORE %APPDATA%\mpv. Vise ce chemin avec" -ForegroundColor Yellow
+    Write-Host "    l'option [c] ci-dessous, ou supprime/renomme ce dossier." -ForegroundColor Yellow
+}
 
 # --- Choix de la destination ---
 $candidates = @(

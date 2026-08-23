@@ -11,21 +11,29 @@ Everything installs by double-clicking a `.bat`.
 
 ## Quick start (new machine)
 
-Order matters — this repo ships **config only, not mpv itself**:
+This repo ships **config only, not mpv itself** — but the installer now
+takes care of mpv too:
 
-1. **Install mpv first.** Grab the latest Windows build from
-   [shinchiro releases](https://github.com/shinchiro/mpv-winbuild-cmake/releases)
-   and install it (default: `C:\Program Files\MPV Player\`). Newer is
-   better — this config uses recent options (`gpu-next`,
-   `autocreate-playlist`), so an up-to-date mpv is required.
-2. **Get this repo.** `git clone https://github.com/yokoinc/mpv-setup`
+1. **Get this repo.** `git clone https://github.com/yokoinc/mpv-setup`
    or download the ZIP and extract it.
-3. **Double-click `Install-ModernZ.bat`** and confirm the default
-   destination (`%APPDATA%\mpv`).
-4. **Set mpv as default player** for `.mkv` / `.avi` — Windows only lets
+2. **Double-click `Install-ModernZ.bat`.** It first looks for `mpv.exe`;
+   if it is missing, it offers to install the
+   [shinchiro build](https://github.com/shinchiro/mpv-winbuild-cmake)
+   via `winget install shinchiro.mpv` (accept the UAC prompt). Then
+   confirm the config destination (`%APPDATA%\mpv`).
+3. **Set mpv as default player** for `.mkv` / `.avi` — Windows only lets
    *you* do this by hand: right-click a video → *Open with* → *Choose
    another app* → **mpv** → tick *Always*. (An installer/script cannot
    set the default; see [File associations](#file-associations).)
+
+If `winget` is unavailable, install mpv manually from the
+[shinchiro releases](https://github.com/shinchiro/mpv-winbuild-cmake/releases)
+(default: `C:\Program Files\MPV Player\`) and re-run the `.bat`. A **recent**
+build is required — this config uses `gpu-next` and `autocreate-playlist`.
+
+> **Note:** if a `portable_config` folder sits next to `mpv.exe`, mpv ignores
+> `%APPDATA%\mpv` entirely. The installer warns you and lets you target that
+> folder instead via the `[c]` option.
 
 That's it. Open a video, you should see the ModernZ bar in French.
 
@@ -54,10 +62,13 @@ That's it. Open a video, you should see the ModernZ bar in French.
 ## Requirements
 
 - Windows 10/11.
-- **mpv installed first** — this repo is config only, it does not contain
-  `mpv.exe`. Install a **recent** vanilla build (the shinchiro build is
-  recommended; it ships the standard `mpv-install.bat`).
+- **mpv** — this repo is config only, it does not contain `mpv.exe`. The
+  installer detects it and, if missing, installs the **recent** shinchiro
+  build via `winget` (package `shinchiro.mpv`). Installing it yourself
+  beforehand works too.
   Typical location: `C:\Program Files\MPV Player\` or `C:\Program Files\mpv\`.
+- **winget** (App Installer, preinstalled on Windows 11) — only needed if
+  you want the installer to fetch mpv for you.
 - The build must read `%APPDATA%\mpv` (normal install). For a **portable**
   build (config next to `mpv.exe`), pick the installer's `[c]` custom-path
   option and point it at that `portable_config` folder.
