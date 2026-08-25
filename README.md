@@ -64,6 +64,7 @@ That is all. Open a video and you should see the ModernZ bar.
 - [Custom Lua scripts](#custom-lua-scripts)
 - [Updating ModernZ](#updating-modernz)
 - [Credits](#credits)
+- [License](#license)
 
 ---
 
@@ -277,7 +278,7 @@ mute, arrows to seek, etc. - see the
 | Key | Action |
 |---|---|
 | `DEL` | Moves the current file to the Recycle Bin (recoverable) |
-| `Shift+DEL` | Deletes the current file permanently (cannot be undone) |
+| `Shift+DEL` | Deletes the current file permanently - press twice within 3 s to confirm |
 
 ### Handy ModernZ / mpv defaults (reminder)
 
@@ -334,8 +335,10 @@ you change them.)
 
 ### `delete_current.lua`
 Deletes the file currently being played.
-- `recycle` mode: Windows Recycle Bin (recoverable).
-- `permanent` mode: permanent delete.
+- `recycle` mode: Windows Recycle Bin (recoverable), acts on the first press.
+- `permanent` mode: permanent delete, so it asks for a second press within
+  3 seconds (`CONFIRM_WINDOW` at the top of the script). Loading another
+  file cancels the pending confirmation.
 - Refuses remote streams (`http://`, etc.).
 - Bound in `input.conf` (`DEL` / `Shift+DEL`).
 
@@ -380,4 +383,17 @@ To move to the latest upstream version:
 - [thumbfast](https://github.com/po5/thumbfast) - fast thumbnails
   (ModernZ picks it up automatically if installed).
 - Shaders: [`FSRCNNX`](https://github.com/igv/FSRCNN-TensorFlow) (igv),
-  `KrigBilateral` (igv), `SSimDownscaler` (igv), `CAS` (AMD, mpv port).
+  `KrigBilateral` (Shiandow), `SSimDownscaler` (Shiandow), `CAS` (AMD, mpv port).
+
+---
+
+## License
+
+The files written for this repository (installer, `mpv.conf`, `input.conf`,
+`modernz.conf`, `delete_current.lua`, this README) are under the MIT license
+- see [LICENSE](LICENSE).
+
+The OSC script, its icon font and locale file, the shaders and
+`installer/mpv-install.bat` come from other projects and keep their own
+licenses (LGPL v2.1, LGPL v3.0, MIT, GPL) - see
+[THIRD-PARTY.md](THIRD-PARTY.md). mpv itself is not redistributed here.

@@ -5,9 +5,13 @@
 --   Shift+DEL   script-message delete-current permanent
 --
 -- Mode "recycle"   -> Windows Recycle Bin (recoverable)
--- Mode "permanent" -> permanent delete (cannot be undone)
+-- Mode "permanent" -> permanent delete, asks for a second press first
+--                     (cannot be undone)
 
 local utils = require 'mp.utils'
+
+-- Seconds allowed between the two presses confirming a permanent delete.
+local CONFIRM_WINDOW = 3
 
 local function osd(msg) mp.osd_message(msg, 3) end
 
@@ -73,4 +77,53 @@ local function delete(mode)
     end
 end
 
-mp.register_script_message("delete-current", delete)
+-- A permanent delete cannot be undone, so it takes two presses within
+-- CONFIRM_WINDOW seconds. The Recycle Bin mode acts right away.
+local pending_path = nil
+local pending_timer = nil
+
+local function clear_pending()
+    if pending_timer then
+        pending_timer:kill()
+        pending_timer = nil
+    end
+    pending_path = nil
+end
+
+local function request_delete(mode)
+    mode = mode or "recycle"
+
+    if mode ~= "permanent" then
+        clear_pending()
+        delete(mode)
+        return
+    end
+
+    local path = mp.get_property("path")
+    if not path or path == "" then
+        osd("No file playing")
+        return
+    end
+
+    if pending_path == path then
+        clear_pending()
+        delete("permanent")
+        return
+    end
+
+    pending_path = path
+    if pending_timer then pending_timer:kill() end
+    pending_timer = mp.add_timeout(CONFIRM_WINDOW, function()
+        pending_timer = nil
+        pending_path = nil
+        osd("Permanent delete cancelled")
+    end)
+    osd(string.format(
+        "Permanent delete: press again within %d s to confirm", CONFIRM_WINDOW))
+end
+
+-- A new file means the pending confirmation no longer applies.
+mp.register_event("file-loaded", clear_pending)
+mp.register_event("end-file", clear_pending)
+
+mp.register_script_message("delete-current", request_delete)
