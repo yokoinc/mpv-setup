@@ -38,6 +38,13 @@ A **recent** build is required - this config uses `gpu-next` and
 
 That is all. Open a video and you should see the ModernZ bar.
 
+> **This is a personal config.** A few settings follow my own habits and
+> are tagged `PERSONAL PREFERENCE` in `mpv.conf`: the audio and subtitle
+> track priority (`alang` / `slang`, French first) and the yt-dlp
+> auto-subtitle languages (`fr,en`). Search for that tag and reorder them
+> to your own languages. The OSC language is set in
+> `script-opts/modernz.conf` (`language=en`, 11 translations available).
+
 ---
 
 ## Contents
@@ -173,7 +180,8 @@ The highlights.
 - Especially useful on low-bitrate YouTube/Twitch.
 
 ### Audio / subtitles
-- Track priority: `fr`, `fre`, `fra`, `en`, `eng`.
+- Track priority: `fr`, `fre`, `fra`, `en`, `eng` - **personal preference,
+  French first**; reorder `alang` / `slang` to your own languages.
 - `volume-max=150`, `audio-pitch-correction=yes`.
 - Subtitles: Noto Sans 42px, 2.5 black border, light shadow, `sub-ass-override=force`.
 
@@ -251,7 +259,8 @@ ytdl-format=bv*[vcodec~='^(av01)'][height<=2160]+ba/
 ```
 
 Priority is **AV1, then VP9, then anything else**, capped at 2160p, with
-the best audio track. Automatic subtitles in French and English.
+the best audio track. Automatic subtitles in French and English
+(`sub-lang="fr,en"` - change it to your own languages).
 
 The ModernZ download button saves to `~~desktop/mpv/`.
 
